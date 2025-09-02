@@ -3,6 +3,7 @@ import { PortfolioButton } from "@/components/ui/portfolio-button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
+import emailjs from '@emailjs/browser'
 
 const ContactSection = () => {
   const [formData, setFormData] = useState({
@@ -10,27 +11,51 @@ const ContactSection = () => {
     email: '',
     project: ''
   })
+  const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // EmailJS configuration
+  const EMAILJS_SERVICE_ID = 'service_5o0gsnn'
+  const EMAILJS_TEMPLATE_ID = 'template_vnrmjpm'
+  const EMAILJS_PUBLIC_KEY = 'JrC5yNxG9l7KP8s_W'
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    // Create mailto link
-    const subject = encodeURIComponent(`New Project Inquiry from ${formData.name}`)
-    const body = encodeURIComponent(
-      `Hi Divansh & Keshav,\n\nName: ${formData.name}\nEmail: ${formData.email}\n\nProject Details:\n${formData.project}\n\nLooking forward to working with you!`
-    )
-    const mailtoLink = `mailto:designsbydivansh@gmail.com?subject=${subject}&body=${body}`
-    
-    window.open(mailtoLink, '_blank')
-    
-    toast({
-      title: "Email client opened!",
-      description: "Your message has been prepared. Please send it to complete your inquiry.",
-    })
-    
-    // Reset form
-    setFormData({ name: '', email: '', project: '' })
+    setIsLoading(true)
+
+    try {
+      // Send email using EmailJS
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        message: formData.project,
+        to_email: 'designsbydivansh@gmail.com'
+      }
+
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        templateParams,
+        EMAILJS_PUBLIC_KEY
+      )
+
+      toast({
+        title: "Message sent successfully!",
+        description: "We'll get back to you within 24 hours.",
+      })
+
+      // Reset form
+      setFormData({ name: '', email: '', project: '' })
+    } catch (error) {
+      console.error('EmailJS error:', error)
+      toast({
+        title: "Failed to send message",
+        description: "Please try again or contact us directly at designsbydivansh@gmail.com",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -157,8 +182,9 @@ const ContactSection = () => {
                 variant="cta" 
                 size="lg"
                 className="w-full"
+                disabled={isLoading}
               >
-                Send Message
+                {isLoading ? "Sending..." : "Send Message"}
               </PortfolioButton>
             </form>
           </div>
