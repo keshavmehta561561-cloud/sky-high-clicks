@@ -6,6 +6,7 @@ import PricingSection from "@/components/sections/PricingSection"
 import TestimonialsSection from "@/components/sections/TestimonialsSection"
 import ContactSection from "@/components/sections/ContactSection"
 import Footer from "@/components/sections/Footer"
+import CookieConsent from "@/components/CookieConsent"
 
 const Index = () => {
   return (
@@ -18,6 +19,7 @@ const Index = () => {
       <TestimonialsSection />
       <ContactSection />
       <Footer />
+      <CookieConsent />
     </div>
   );
 };
